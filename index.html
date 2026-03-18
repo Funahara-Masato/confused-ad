@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SOAR — CONFUSED AD</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ① スタート画面 -->
+  <div class="screen" id="screenStart">
+    <div class="start-inner">
+      <p class="eyecatch">CONFUSED AD EXPERIMENT</p>
+      <h1>この広告は、あなたの<br>「困惑」を読んでいる。</h1>
+      <p class="start-desc">
+        広告コピーを読んで、50文字以内で要約してください。<br>
+        打鍵のリズムとマウスの動きから困惑状態をリアルタイムで推定し、<br>
+        広告のビジュアルが変化します。
+      </p>
+      <button class="btn-primary" id="btnStart">体験する</button>
+      <p class="start-note">※ カメラ・マイクは使用しません</p>
+    </div>
+  </div>
+
+  <!-- ② メイン画面 -->
+  <div class="screen hidden" id="screenMain">
+    <div class="main-layout">
+
+      <!-- 広告エリア（固定テキスト） -->
+      <section class="ad-area" id="adArea">
+        <div class="ad-bg" id="adBg"></div>
+        <div class="ad-content">
+
+          <!-- ハンググライダーイラスト -->
+          <div class="ad-illust" id="adIllust">
+            <svg viewBox="0 0 300 140" xmlns="http://www.w3.org/2000/svg">
+              <!-- ウィング左 -->
+              <path d="M150,38 L4,90 L138,70 Z" class="wing-l"/>
+              <!-- ウィング右 -->
+              <path d="M150,38 L296,90 L162,70 Z" class="wing-r"/>
+              <!-- 前縁ライン -->
+              <path d="M4,90 L150,38 L296,90" fill="none" class="edge"/>
+              <!-- キール -->
+              <line x1="150" y1="38" x2="150" y2="90" class="keel"/>
+              <!-- クロスバー -->
+              <line x1="4" y1="90" x2="296" y2="90" class="crossbar"/>
+              <!-- ハーネスワイヤー -->
+              <line x1="108" y1="68" x2="146" y2="108" class="wire"/>
+              <line x1="192" y1="68" x2="154" y2="108" class="wire"/>
+              <!-- パイロット（頭） -->
+              <circle cx="150" cy="102" r="6" class="pilot-head"/>
+              <!-- パイロット（体） -->
+              <line x1="150" y1="108" x2="150" y2="122" class="pilot-body"/>
+              <!-- 腕 -->
+              <line x1="150" y1="113" x2="142" y2="120" class="pilot-arm"/>
+              <line x1="150" y1="113" x2="158" y2="120" class="pilot-arm"/>
+            </svg>
+          </div>
+
+          <p class="ad-brand">SOAR</p>
+
+          <h2 class="ad-headline">
+            エンジンなし。<br>風だけで、人は空を飛べる。
+          </h2>
+
+          <p class="ad-body">
+            ハンググライダーは、三角形の翼と
+            <span class="kw" id="kw1">体重移動</span>
+            だけで空を滑るスポーツだ。コツは
+            <span class="kw" id="kw2">上昇気流</span>
+            を読むこと——地面が温められた場所に生まれる、目に見えない上昇する風の流れ。それを感じ取り、旋回し、高度を稼ぐ。空を制するのに必要なのは、エンジンではなく、
+            <span class="kw" id="kw3">感性</span>
+            だ。
+          </p>
+
+          <p class="ad-cta">SOAR — FEEL THE INVISIBLE</p>
+        </div>
+      </section>
+
+      <!-- 入力・メーター -->
+      <section class="input-area">
+
+        <div class="task-box">
+          <p class="task-label">上の広告コピーを 50文字以内 で要約してください</p>
+          <textarea id="inputBox" maxlength="50" placeholder="ここに入力..."></textarea>
+          <div class="input-meta">
+            <span class="char-count"><span id="charCount">0</span>/50</span>
+            <button class="btn-submit" id="btnSubmit" disabled>送信</button>
+          </div>
+        </div>
+
+        <div class="meter-box">
+          <div class="meter-header">
+            <span class="meter-title">困惑スコア</span>
+            <span class="meter-score" id="scoreNum">0</span>
+          </div>
+          <div class="meter-track">
+            <div class="meter-fill" id="meterFill"></div>
+          </div>
+          <div class="state-label-txt" id="stateTxt">入力を始めると計測が始まります</div>
+        </div>
+
+        <div class="metrics">
+          <div class="metric-item"><span>打鍵リズム</span><span id="rhythm">—</span></div>
+          <div class="metric-item"><span>停滞時間</span><span id="stagnation">—</span></div>
+          <div class="metric-item"><span>停止回数</span><span id="pauseCount">0 回</span></div>
+          <div class="metric-item"><span>削除回数</span><span id="deleteCount">0 回</span></div>
+          <div class="metric-item"><span>マウス往復</span><span id="backtrack">0 回</span></div>
+          <div class="metric-item"><span>マウス速度</span><span id="mouseSpeed">—</span></div>
+        </div>
+
+        <div class="hint-box hidden" id="hintBox">
+          <p class="hint-title">💡 キーワード補足</p>
+          <p class="hint-item"><strong>上昇気流</strong>：地面が温められると空気が上昇する気流。これに乗ることで高度を稼ぐ。</p>
+          <p class="hint-item"><strong>体重移動</strong>：ハンドルではなく、体を左右に傾けることで方向を変える。</p>
+        </div>
+
+      </section>
+    </div>
+  </div>
+
+  <!-- ③ 結果画面 -->
+  <div class="screen hidden" id="screenResult">
+    <div class="result-inner">
+      <p class="eyecatch">RESULT</p>
+      <div class="result-score" id="resultScore">0</div>
+      <div class="result-state" id="resultState">—</div>
+      <p class="result-desc" id="resultDesc">—</p>
+      <div class="result-summary-box">
+        <p class="result-summary-label">あなたの要約</p>
+        <blockquote id="resultText">—</blockquote>
+      </div>
+      <div class="result-ad-box" id="resultAdBox"></div>
+      <button class="btn-primary" id="btnRetry">もう一度やる</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
