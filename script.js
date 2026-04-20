@@ -40,18 +40,19 @@ let currentTheme  = '';
 let hasStarted    = false;
 
 // 打鍵
-let ikiValues   = [];
-let pauseCount  = 0;
-let deleteCount = 0;
-let lastKeyTime = null;
-let pauseTimer  = null;
+let ikiValues    = [];
+let deleteEvents = [];  // 削除キー発生時刻
+let pauseEvents  = [];  // 停止発生時刻
+let lastKeyTime  = null;
+let pauseTimer   = null;
 
 // マウス
 let lastMouseX = 0, lastMouseY = 0;
 let mouseSpeedSamples = [];
-let backtrackCount = 0;
-let backtrackTimes = [];  // 往復が発生した時刻を記録
+let backtrackTimes = [];  // 往復発生時刻
 let prevDirX = 0;
+
+const WINDOW_MS = 10000;  // スコア計算の時間窓（10秒）
 
 // ============================================================
 //  画面遷移
@@ -87,8 +88,7 @@ inputBox.addEventListener('keydown', (e) => {
 
   // 削除キー
   if (e.key === 'Backspace' || e.key === 'Delete') {
-    deleteCount++;
-    deleteCountEl.textContent = `${deleteCount} 回`;
+    deleteEvents.push(now);
   }
 
   // IKI
@@ -105,8 +105,7 @@ inputBox.addEventListener('keydown', (e) => {
   clearTimeout(pauseTimer);
   pauseTimer = setTimeout(() => {
     if (inputBox.value.length > 0 && hasStarted) {
-      pauseCount++;
-      pauseCountEl.textContent = `${pauseCount} 回`;
+      pauseEvents.push(Date.now());
     }
   }, 2000);
 });
@@ -132,7 +131,6 @@ document.addEventListener('mousemove', (e) => {
   if (Math.abs(dx) > 8) {
     const dirX = dx > 0 ? 1 : -1;
     if (prevDirX !== 0 && dirX !== prevDirX) {
-      backtrackCount++;
       backtrackTimes.push(Date.now());
     }
     prevDirX = dirX;
@@ -163,15 +161,22 @@ setInterval(() => {
   const stagnationSec = (elapsed / 1000).toFixed(1);
   stagnationEl.textContent = elapsed > 500 ? `${stagnationSec} 秒` : '—';
 
-  // --- 3. 停止回数スコア（1回=30pt, 上限90）---
-  const pauseScore = Math.min(pauseCount * 30, 90);
+  // --- 3. 停止回数スコア（直近10秒, 1回=30pt, 上限90）---
+  const now = Date.now();
+  const recentPauses    = pauseEvents.filter(t => now - t < WINDOW_MS);
+  const recentDeletes   = deleteEvents.filter(t => now - t < WINDOW_MS);
+  const recentBacktrack = backtrackTimes.filter(t => now - t < WINDOW_MS);
 
-  // --- 4. 削除スコア（1回=20pt, 上限80）---
-  const deleteScore = Math.min(deleteCount * 20, 80);
+  const pauseScore  = Math.min(recentPauses.length * 30, 90);
+  pauseCountEl.textContent = `${(recentPauses.length / 10).toFixed(1)} 回/秒`;
 
-  // --- 5. マウス往復スコア（累積・止まっても下がらない）---
-  const btScore = Math.min(backtrackCount * 15, 90);
-  backtrackEl.textContent = `${backtrackCount} 回`;
+  // --- 4. 削除スコア（直近10秒, 1回=20pt, 上限80）---
+  const deleteScore = Math.min(recentDeletes.length * 20, 80);
+  deleteCountEl.textContent = `${(recentDeletes.length / 10).toFixed(1)} 回/秒`;
+
+  // --- 5. マウス往復スコア（直近10秒, 1回=15pt, 上限90）---
+  const btScore = Math.min(recentBacktrack.length * 15, 90);
+  backtrackEl.textContent = `${(recentBacktrack.length / 10).toFixed(1)} 回/秒`;
 
   // --- 6. マウス速度スコア（速い＝離脱 or 焦り → 困惑高）---
   let mouseScore = 0;
@@ -313,9 +318,9 @@ function showResult() {
 // ============================================================
 function reset() {
   confusedScore = 0; currentTheme = ''; hasStarted = false;
-  ikiValues = []; pauseCount = 0; deleteCount = 0;
+  ikiValues = []; deleteEvents = []; pauseEvents = [];
   lastKeyTime = null; clearTimeout(pauseTimer);
-  mouseSpeedSamples = []; backtrackCount = 0; backtrackTimes = []; prevDirX = 0;
+  mouseSpeedSamples = []; backtrackTimes = []; prevDirX = 0;
 
   inputBox.value              = '';
   charCountEl.textContent     = '0';
@@ -325,9 +330,9 @@ function reset() {
   stateTxtEl.textContent      = '入力を始めると計測が始まります';
   rhythmEl.textContent        = '—';
   stagnationEl.textContent    = '—';
-  pauseCountEl.textContent    = '0 回';
-  deleteCountEl.textContent   = '0 回';
-  backtrackEl.textContent     = '0 回';
+  pauseCountEl.textContent    = '0.0 回/秒';
+  deleteCountEl.textContent   = '0.0 回/秒';
+  backtrackEl.textContent     = '0.0 回/秒';
   mouseSpeedEl.textContent    = '—';
   hintBox.classList.add('hidden');
 

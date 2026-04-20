@@ -44,9 +44,10 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); line
 /* ===== AD AREA ===== */
 .ad-area {
   position: relative;
-  display: flex; align-items: center; justify-content: center;
-  padding: 56px 52px;
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 48px 52px 40px;
   overflow: hidden;
+  height: 100vh;
 }
 
 .ad-bg {
@@ -64,7 +65,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); line
 .ad-content { position: relative; z-index: 1; max-width: 480px; width: 100%; }
 
 /* ===== SVG イラスト ===== */
-.ad-illust { margin-bottom: 32px; opacity: 0.7; transition: opacity 0.6s, filter 0.6s; }
+.ad-illust { margin-bottom: 16px; opacity: 0.7; transition: opacity 0.6s, filter 0.6s; }
 .ad-illust svg { width: 100%; max-width: 300px; display: block; }
 
 .wing-l    { fill: #1b2f45; transition: fill 0.6s; }
@@ -97,9 +98,9 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); line
 .ad-area.focused .ad-brand { color: var(--blue); }
 
 .ad-headline {
-  font-size: 2.4rem; font-weight: 900;
+  font-size: 2rem; font-weight: 900;
   line-height: 1.2; letter-spacing: -0.03em;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
   transition: color 0.5s;
 }
 /* disengaged：暗くしない。読みやすさを維持 */
@@ -107,7 +108,7 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); line
 
 .ad-body {
   font-size: 0.95rem; line-height: 2; color: #999;
-  margin-bottom: 32px;
+  margin-bottom: 20px;
   transition: color 0.5s, opacity 0.5s;
 }
 /* disengagedでも本文を暗くしない */
@@ -150,11 +151,14 @@ body { background: var(--bg); color: var(--text); font-family: var(--font); line
 
 /* ===== INPUT AREA ===== */
 .input-area {
+  position: relative;
   background: var(--surface);
   border-left: 1px solid var(--border);
   padding: 44px 32px;
   display: flex; flex-direction: column; gap: 28px;
   justify-content: center;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .task-box {}
@@ -202,6 +206,7 @@ textarea:focus { border-color: #3a3a3a; }
 
 /* ===== HINT BOX ===== */
 .hint-box {
+  margin-top: 16px;
   background: rgba(255, 200, 50, 0.06);
   border: 1px solid rgba(255, 200, 50, 0.25);
   border-radius: 2px;
